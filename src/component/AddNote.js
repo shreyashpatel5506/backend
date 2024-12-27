@@ -17,12 +17,16 @@ const AddNote = (props) => {
       showAlert("Please fill all the fields", "danger");
       return;
     }
+    else{
+      showAlert("Note added successfully", "success");
+    }
     
     // Show success alert
-    showAlert("Note added successfully", "success");
+  //  
 
     // Add the note using the context API's addNote function
     addNote(note.title, note.description, note.tag);
+   
 
     // Clear the form fields after submission
     setNote({ title: "", description: "", tag: "" });

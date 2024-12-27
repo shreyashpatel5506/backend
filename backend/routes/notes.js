@@ -7,15 +7,13 @@ const { body, validationResult } = require('express-validator');
 //fetch the all data of specific user /api/notes/fetchallnotes
 router.get('/fetchallnotes', fetchuser, async (req, res) => {
     try {
-
-        const notes = await note.find({ user: req.user.id });
-        res.json(notes)
+        const notes = await note.find({ user: req.user.id }).sort({ timestamp: -1 });
+        res.json(notes);
     } catch (error) {
         console.error("some error find");
         res.status(500).json({ error: 'Internal server error' });
     }
-})
-
+});
 //ad notes for a user using post1   
 router.post('/addnotes', fetchuser,[
     body('title', 'Enter a valid title').isLength({ min: 3 }),
