@@ -13,7 +13,7 @@ import NoteState from './context/notes/notestate';
 import Alert from './component/Alert';
 import Login from './component/login'; // Use lowercase for filenames
 import Signup from './component/signup'; // Use uppercase for component names
-import { useEffect } from 'react';
+
 
 
 function App() {
