@@ -11,7 +11,6 @@ const Notes = ({ showAlert }) => {
   const { notes, getnote, editNote, addNote } = context;
 
   useEffect(() => {
-    console.log(localStorage.getItem("token")); // Debugging line
     if (localStorage.getItem("token")) {
       getnote();
     } else {
@@ -20,10 +19,6 @@ const Notes = ({ showAlert }) => {
     // eslint-disable-next-line
   }, []);
 
-  const ref = useRef(null);
-  const refClose = useRef(null);
-
-  // Initialize with default values to prevent undefined issues
   const [note, setNote] = useState({
     id: "",
     etitle: "",
@@ -31,46 +26,44 @@ const Notes = ({ showAlert }) => {
     etag: ""
   });
 
-  // Manage whether to show the AddNote component or the EditNote modal
   const [showAddNote, setShowAddNote] = useState(false);
+
+  // New state to manage the modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle note update when edit button is clicked
   const updateNote = (currentNote) => {
-    console.log("Current Note:", currentNote, currentNote._id); // Debugging line
-    setShowAddNote(false); // Close AddNote component if edit is being triggered
-    ref.current.click(); // Open the modal for editing note
     setNote({
-      id: currentNote._id,  // Set a default value if _id is undefined
+      id: currentNote._id,
       etitle: currentNote.title || "",
       edescription: currentNote.description || "",
       etag: currentNote.tag || ""
     });
+    
+    setIsModalOpen(true); // Open the modal
   };
 
-  // Handle submit when user clicks on Update button in the modal
   const handleClick = () => {
-    console.log("Updating Note:", note); // Debugging line
-    showAlert("Note updated successfully", "success");
     if (note.etitle && note.edescription) {
+      // Update note
       editNote(note.id, note.etitle, note.edescription, note.etag);
-      refClose.current.click(); // Close the modal
+      showAlert("Note updated successfully", "success");
+
+      setIsModalOpen(false); // Close the modal after updating
     }
   };
 
-  // Handle changes in the input fields for updating the note
   const onChange = (e) => {
     setNote({ ...note, [e.target.name]: e.target.value });
   };
 
-  // Function to handle successful note addition
   const handleNoteAdded = () => {
-    setShowAddNote(false); // Hide the AddNote component
-    showAlert("Note added successfully", "success"); // Show success message
+    setShowAddNote(false);
+    showAlert("Note added successfully", "success");
   };
 
   return (
     <>
-      {/* Conditionally render the plus icon based on showAddNote state */}
       {!showAddNote && (
         <i
           className="fa-solid fa-plus"
@@ -91,83 +84,91 @@ const Notes = ({ showAlert }) => {
         ></i>
       )}
 
-      {/* Render AddNote component when the state is true */}
       {showAddNote && <AddNote showAlert={showAlert} onNoteAdded={handleNoteAdded} />}
 
-      {/* Button to trigger modal for editing note */}
-      <button
-        ref={ref}
-        type="button"
-        className="btn btn-primary d-none"
-        data-bs-toggle="modal"
-        data-bs-target="#exampleModal"
-      >
-        Launch demo modal
-      </button>
-
       {/* Modal for editing notes */}
-      <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">Edit Note</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              <form className="my-3">
-                <div className="mb-3">
-                  <label htmlFor="etitle" className="form-label">Title</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="etitle"
-                    name="etitle"
-                    value={note.etitle}
-                    onChange={onChange}
-                    minLength={5}
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="edescription" className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="edescription"
-                    name="edescription"
-                    value={note.edescription}
-                    onChange={onChange}
-                    minLength={5}
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="etag" className="form-label">Tag</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="etag"
-                    name="etag"
-                    value={note.etag}
-                    onChange={onChange}
-                  />
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button ref={refClose} type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button
-                disabled={note.etitle.length < 5 || note.edescription.length < 5}
-                onClick={handleClick}
-                type="button"
-                className="btn btn-primary"
-              >
-                Update Note
-              </button>
+      {isModalOpen && (
+        <div
+          className="modal fade show"
+          id="exampleModal"
+          tabIndex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="false"
+          style={{ display: 'block' }} // Display the modal
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="exampleModalLabel">Edit Note</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setIsModalOpen(false)} // Close the modal
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form className="my-3">
+                  <div className="mb-3">
+                    <label htmlFor="etitle" className="form-label">Title</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="etitle"
+                      name="etitle"
+                      value={note.etitle}
+                      onChange={onChange}
+                      minLength={5}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="edescription" className="form-label">Description</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="edescription"
+                      name="edescription"
+                      value={note.edescription}
+                      onChange={onChange}
+                      minLength={5}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="etag" className="form-label">Tag</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="etag"
+                      name="etag"
+                      value={note.etag}
+                      onChange={onChange}
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsModalOpen(false)} // Close the modal
+                >
+                  Close
+                </button>
+                <button
+                  disabled={note.etitle.length < 5 || note.edescription.length < 5}
+                  onClick={handleClick}
+                  type="button"
+                  className="btn btn-primary"
+                >
+                  Update Note
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Displaying Notes */}
       <div className="row my-3">

@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useContext } from 'react';
 import noteContext from '../context/notes/NoteContext';
-import { useNavigate } from 'react-router-dom';
+
 
 const Login = (props) => {
     const [credentials, setCredentials] = useState({ email: "", password: "" });
-    const navigate = useNavigate();
     const {updateUser}=useContext(noteContext);
     const handleSubmit = async (e) => {
         e.preventDefault();
